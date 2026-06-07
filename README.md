@@ -13,14 +13,14 @@ self-contained IIFE.
   data-finodex-org="1"
   data-finodex-api="https://api.finodex.net"
 ></div>
-<script src="https://forms.finodex.net/finodex-forms.js" async></script>
+<script src="https://cdn.jsdelivr.net/gh/samanmohamadi/finodex-form-embed@v0.1.0/dist/finodex-forms.js" async></script>
 ```
 
 Or programmatically:
 
 ```html
 <div id="my-form"></div>
-<script src="https://forms.finodex.net/finodex-forms.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/samanmohamadi/finodex-form-embed@v0.1.0/dist/finodex-forms.js"></script>
 <script>
   FinodexForms.render({
     container: document.getElementById("my-form"),
@@ -39,6 +39,27 @@ Or programmatically:
 The form's `config.allowedOrigins` (set in the admin panel) controls which
 host pages may submit. Empty list = any origin (useful for local testing).
 Add specific origins like `https://example.com` to lock down.
+
+## Hosting (jsDelivr CDN)
+
+The bundle is served from GitHub via jsDelivr — `dist/finodex-forms.js` is
+committed and each release is tagged.
+
+```html
+<!-- Pinned to a tag — immutable, recommended for production -->
+<script src="https://cdn.jsdelivr.net/gh/samanmohamadi/finodex-form-embed@v0.1.0/dist/finodex-forms.js" async></script>
+
+<!-- Pinned to a major version — auto-picks up v0.x patches (cached up to 12h) -->
+<script src="https://cdn.jsdelivr.net/gh/samanmohamadi/finodex-form-embed@0/dist/finodex-forms.js" async></script>
+```
+
+To ship an update, bump the version and tag — the old tag URL stays immutable:
+
+```bash
+npm run build
+git add -A && git commit -m "build vX.Y.Z"
+git tag vX.Y.Z && git push origin main vX.Y.Z
+```
 
 ## Local dev
 
