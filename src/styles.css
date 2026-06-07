@@ -1,0 +1,136 @@
+.fdx-form {
+  font-family: inherit;
+  font-size: 14px;
+  color: inherit;
+  display: block;
+  max-width: 100%;
+}
+
+.fdx-form-loading,
+.fdx-form-error {
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+.fdx-form-loading {
+  color: #555;
+}
+.fdx-form-error {
+  background: #fee;
+  color: #a00;
+  border: 1px solid #f3b6b6;
+}
+
+.fdx-form-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+.fdx-form-description {
+  font-size: 14px;
+  color: #666;
+  margin: 0 0 16px;
+}
+
+.fdx-form-field {
+  display: block;
+  margin-bottom: 14px;
+}
+.fdx-form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+.fdx-form-label-required::after {
+  content: " *";
+  color: #c00;
+}
+.fdx-form-input,
+.fdx-form-textarea,
+.fdx-form-select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 14px;
+  color: inherit;
+  background: #fff;
+  outline: none;
+}
+.fdx-form-input:focus,
+.fdx-form-textarea:focus,
+.fdx-form-select:focus {
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.15);
+}
+.fdx-form-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+.fdx-form-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.fdx-form-help {
+  display: block;
+  font-size: 12px;
+  color: #888;
+  margin-top: 4px;
+}
+.fdx-form-field-error {
+  display: block;
+  font-size: 12px;
+  color: #c00;
+  margin-top: 4px;
+}
+.fdx-form-honeypot {
+  position: absolute !important;
+  left: -9999px !important;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.fdx-form-button {
+  display: inline-block;
+  padding: 10px 18px;
+  background: #1677ff;
+  color: #fff;
+  border: 0;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 120ms;
+}
+.fdx-form-button:hover:not(:disabled) {
+  background: #0958d9;
+}
+.fdx-form-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.fdx-form-success {
+  padding: 12px 16px;
+  background: #e6f4ea;
+  color: #137333;
+  border: 1px solid #b7dfb9;
+  border-radius: 6px;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+.fdx-form-submit-error {
+  padding: 10px 14px;
+  background: #fee;
+  color: #a00;
+  border: 1px solid #f3b6b6;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
