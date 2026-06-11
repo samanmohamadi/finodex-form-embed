@@ -40,6 +40,7 @@ function render(opts: RenderOptions): () => void {
       slug: opts.slug,
       orgId: opts.orgId,
       apiBase,
+      lang: opts.lang ?? "fa",
       onSuccess: opts.onSuccess,
       onError: opts.onError,
       submitLabel: opts.submitLabel,
@@ -59,6 +60,7 @@ function autoInit(root: ParentNode = document) {
     const orgId = el.dataset.finodexOrg;
     const apiBase = el.dataset.finodexApi;
     const submitLabel = el.dataset.finodexSubmitLabel;
+    const lang = el.dataset.finodexLang as "fa" | "en" | undefined;
     if (!slug || !orgId) {
       console.warn("FinodexForms: missing data-finodex-form or data-finodex-org on", el);
       return;
@@ -69,6 +71,7 @@ function autoInit(root: ParentNode = document) {
         slug,
         orgId,
         apiBase: apiBase || undefined,
+        lang: lang || undefined,
         submitLabel: submitLabel || undefined,
       });
     } catch (e) {

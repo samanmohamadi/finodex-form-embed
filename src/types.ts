@@ -45,6 +45,7 @@ export interface RenderOptions {
   slug: string;
   orgId: number | string;
   apiBase?: string;
+  lang?: "fa" | "en";
   onSuccess?: (result: SubmitResult) => void;
   onError?: (error: Error) => void;
   submitLabel?: string;

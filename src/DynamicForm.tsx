@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "preact/hooks";
 import { fetchSchema, submitForm } from "./api";
+import { t } from "./i18n";
+import type { Lang } from "./i18n";
 import type {
   FormFieldSchema,
   PublicFormSchema,
@@ -11,6 +13,7 @@ interface Props {
   slug: string;
   orgId: number | string;
   apiBase: string;
+  lang?: Lang;
   onSuccess?: RenderOptions["onSuccess"];
   onError?: RenderOptions["onError"];
   submitLabel?: string;
@@ -22,54 +25,55 @@ interface FieldErrors {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-function validate(schema: FormFieldSchema[], values: Record<string, any>): FieldErrors {
+function validate(schema: FormFieldSchema[], values: Record<string, any>, lang: Lang): FieldErrors {
+  const m = t(lang);
   const errors: FieldErrors = {};
   for (const f of schema) {
     const raw = values[f.name];
     const present = raw !== undefined && raw !== null && raw !== "" && raw !== false;
 
     if (!present) {
-      if (f.required && f.type !== "checkbox") errors[f.name] = `${f.label} is required`;
+      if (f.required && f.type !== "checkbox") errors[f.name] = m.required(f.label);
       if (f.required && f.type === "checkbox" && raw !== true) {
-        errors[f.name] = `${f.label} is required`;
+        errors[f.name] = m.required(f.label);
       }
       continue;
     }
 
     if (f.type === "email" && !EMAIL_RE.test(String(raw).trim())) {
-      errors[f.name] = `${f.label} must be a valid email`;
+      errors[f.name] = m.email(f.label);
       continue;
     }
     if (f.type === "url") {
       try {
         new URL(String(raw));
       } catch {
-        errors[f.name] = `${f.label} must be a valid URL`;
+        errors[f.name] = m.url(f.label);
         continue;
       }
     }
     if (typeof raw === "string") {
       if (f.maxLength != null && raw.length > f.maxLength) {
-        errors[f.name] = `${f.label} is too long`;
+        errors[f.name] = m.tooLong(f.label);
         continue;
       }
       if (f.minLength != null && raw.length < f.minLength) {
-        errors[f.name] = `${f.label} is too short`;
+        errors[f.name] = m.tooShort(f.label);
         continue;
       }
       if (f.pattern && !new RegExp(`^(?:${f.pattern})$`).test(raw)) {
-        errors[f.name] = `${f.label} format is invalid`;
+        errors[f.name] = m.patternInvalid(f.label);
         continue;
       }
     }
     if (f.type === "number") {
       const n = Number(raw);
       if (!Number.isFinite(n)) {
-        errors[f.name] = `${f.label} must be a number`;
+        errors[f.name] = m.notNumber(f.label);
         continue;
       }
-      if (f.min != null && n < f.min) errors[f.name] = `${f.label} is too small`;
-      if (f.max != null && n > f.max) errors[f.name] = `${f.label} is too large`;
+      if (f.min != null && n < f.min) errors[f.name] = m.tooSmall(f.label);
+      if (f.max != null && n > f.max) errors[f.name] = m.tooLarge(f.label);
     }
   }
   return errors;
@@ -87,7 +91,10 @@ function coerceForSubmit(schema: FormFieldSchema[], values: Record<string, any>)
   return out;
 }
 
-export function DynamicForm({ slug, orgId, apiBase, onSuccess, onError, submitLabel }: Props) {
+export function DynamicForm({ slug, orgId, apiBase, lang = "fa", onSuccess, onError, submitLabel }: Props) {
+  const m = t(lang);
+  const dir = lang === "fa" ? "rtl" : "ltr";
+
   const [schema, setSchema] = useState<PublicFormSchema | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [values, setValues] = useState<Record<string, any>>({});
@@ -106,7 +113,7 @@ export function DynamicForm({ slug, orgId, apiBase, onSuccess, onError, submitLa
       })
       .catch((e) => {
         if (cancelled) return;
-        setLoadError(e?.message || "Failed to load form");
+        setLoadError(e?.message || m.loadError);
       });
     return () => {
       cancelled = true;
@@ -128,7 +135,7 @@ export function DynamicForm({ slug, orgId, apiBase, onSuccess, onError, submitLa
     e.preventDefault();
     if (!schema) return;
 
-    const errs = validate(schema.schema, values);
+    const errs = validate(schema.schema, values, lang);
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
       return;
@@ -146,7 +153,7 @@ export function DynamicForm({ slug, orgId, apiBase, onSuccess, onError, submitLa
       setValues({});
       onSuccess?.(result);
     } catch (e: any) {
-      const msg = e?.message || "Submission failed";
+      const msg = e?.message || m.submissionFailed;
       setSubmitError(msg);
       onError?.(e instanceof Error ? e : new Error(msg));
     } finally {
@@ -155,19 +162,19 @@ export function DynamicForm({ slug, orgId, apiBase, onSuccess, onError, submitLa
   };
 
   if (loadError) {
-    return <div class="fdx-form-error">{loadError}</div>;
+    return <div class="fdx-form-error" dir={dir}>{loadError}</div>;
   }
   if (!schema) {
-    return <div class="fdx-form-loading">Loading…</div>;
+    return <div class="fdx-form-loading" dir={dir}>{m.loading}</div>;
   }
 
   return (
-    <form class="fdx-form" onSubmit={handleSubmit} noValidate>
+    <form class="fdx-form" dir={dir} onSubmit={handleSubmit} noValidate>
       {schema.title && <h3 class="fdx-form-title">{schema.title}</h3>}
       {schema.description && <p class="fdx-form-description">{schema.description}</p>}
 
       {success && (
-        <div class="fdx-form-success">{success.message || schema.successMessage || "Submitted"}</div>
+        <div class="fdx-form-success">{success.message || schema.successMessage || m.submitted}</div>
       )}
       {submitError && <div class="fdx-form-submit-error">{submitError}</div>}
 
@@ -178,6 +185,7 @@ export function DynamicForm({ slug, orgId, apiBase, onSuccess, onError, submitLa
           value={values[f.name]}
           error={errors[f.name]}
           onChange={(v) => handleChange(f.name, v)}
+          selectPlaceholder={m.selectPlaceholder}
         />
       ))}
 
@@ -194,7 +202,7 @@ export function DynamicForm({ slug, orgId, apiBase, onSuccess, onError, submitLa
       )}
 
       <button class="fdx-form-button" type="submit" disabled={submitting}>
-        {submitting ? "Submitting…" : submitLabel || "Submit"}
+        {submitting ? m.submitting : submitLabel || m.submit}
       </button>
     </form>
   );
@@ -205,11 +213,13 @@ function Field({
   value,
   error,
   onChange,
+  selectPlaceholder,
 }: {
   field: FormFieldSchema;
   value: any;
   error?: string;
   onChange: (v: any) => void;
+  selectPlaceholder: string;
 }) {
   const labelClass = useMemo(
     () => "fdx-form-label" + (field.required ? " fdx-form-label-required" : ""),
@@ -260,7 +270,7 @@ function Field({
         value={value ?? ""}
         onChange={(e) => onChange((e.target as HTMLSelectElement).value)}
       >
-        <option value="">{field.placeholder || "— select —"}</option>
+        <option value="">{field.placeholder || selectPlaceholder}</option>
         {field.options?.map((o) => (
           <option key={o.value} value={o.value}>
             {o.label}
